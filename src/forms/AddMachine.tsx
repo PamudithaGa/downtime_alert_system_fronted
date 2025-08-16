@@ -226,7 +226,7 @@ const handleSubmit = async (e: React.FormEvent) => {
         {/* Submit */}
         <button
           type="submit"
-          className="w-full bg-blue-600 text-white font-semibold py-3 rounded hover:bg-blue-700 transition"
+          className="w-full bg-primary text-white font-semibold py-3 rounded hover:bg-primary/80 transition cursor-pointer"
         >
           Add Machine
         </button>

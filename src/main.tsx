@@ -6,6 +6,7 @@ import { RouterProvider, createBrowserRouter } from "react-router";
 import App from "./App.tsx";
 import MechanicDashboard from "./dashboards/MechanicDashboard.tsx";
 import TeamLeaderDashboard from "./dashboards/TeamLeaderDashboard.tsx";
+import Registration from "./auth/Registration.tsx";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -18,6 +19,10 @@ const router = createBrowserRouter([
   {
     path: "/teamleaderdashboard",
     element: <TeamLeaderDashboard />,
+  },
+  {
+    path: "/registration",
+    element: <Registration />,
   },
 ]);
 

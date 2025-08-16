@@ -4,7 +4,12 @@ import { IoIosWarning } from "react-icons/io";
 import { VscVmActive } from "react-icons/vsc";
 import { MdOutlinePendingActions } from "react-icons/md";
 
-import AddMachine from "../forms/AddMachine.tsx";
+interface MachineLog {
+  status: string;
+  m_ArrivalTime?: string;
+  breakdownStartTime?: string;
+  breakdownEndTime?: string;
+}
 
 interface Machine {
   _id: string;
@@ -12,65 +17,40 @@ interface Machine {
   machineName: string;
   machineType: string;
   status: string;
-  breakdownStartTime: string;
-  m_ArrivalTime?: string;
-  breakdownEndTime?: string;
+  logs: MachineLog[];
 }
 
-function formatDuration(ms: number) {
-  const totalSeconds = Math.floor(ms / 1000);
-  const hours = Math.floor(totalSeconds / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = totalSeconds % 60;
+const formatDuration = (ms: number) => {
+  const seconds = Math.floor(ms / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
 
-  return `${hours.toString().padStart(2, "0")}:${minutes
-    .toString()
-    .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
-}
+  if (hours > 0) return `${hours}h ${minutes % 60}m`;
+  if (minutes > 0) return `${minutes}m ${seconds % 60}s`;
+  return `${seconds}s`;
+};
 
 const TeamLeaderDashboard: React.FC = () => {
-  // Fetch machines every second
-  useEffect(() => {
-    fetchMachines(); // Initial fetch
-
-    const interval = setInterval(() => {
-      fetchMachines();
-    }, 1000);
-
-    return () => clearInterval(interval); // Cleanup on unmount
-  }, []);
-
   const [machines, setMachines] = useState<Machine[]>([]);
   const [now, setNow] = useState(Date.now());
 
+  // Update current time every second
   useEffect(() => {
     const interval = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(interval);
   }, []);
 
-  // Calculate downtime based on breakdown start and end times
-  const calculateDowntime = (machine: Machine) => {
-    const start = new Date(machine.breakdownStartTime).getTime();
-    const end = machine.breakdownEndTime
-      ? new Date(machine.breakdownEndTime).getTime()
-      : null;
+  // Fetch machines every second
+  useEffect(() => {
+    fetchMachines();
+    const interval = setInterval(fetchMachines, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
-    if (end) {
-      // downtime is fixed duration between breakdown start and end
-      return formatDuration(end - start);
-    } else {
-      // downtime is time since breakdown start until now
-      return formatDuration(now - start);
-    }
-  };
-
-  //get machines from backend
   const fetchMachines = async () => {
     try {
       const res = await fetch("http://localhost:5000/api/machines");
-      if (!res.ok) {
-        throw new Error("Failed to fetch machines");
-      }
+      if (!res.ok) throw new Error("Failed to fetch machines");
       const data = await res.json();
       setMachines(data);
     } catch (err) {
@@ -78,100 +58,93 @@ const TeamLeaderDashboard: React.FC = () => {
     }
   };
 
-  const getStatusColor = (status: Machine["status"]) => {
+  const calculateDowntime = (machine: Machine) => {
+    if (machine.status === "running") return "As soon as possible";
+
+    if (!machine.logs || machine.logs.length === 0) return "N/A";
+
+    // Find latest down log
+    const downLog = [...machine.logs]
+      .reverse()
+      .find((log) => log.status === "down" || log.status === "arrived");
+
+    if (!downLog) return "N/A";
+
+    const startTime = downLog.breakdownStartTime || downLog.m_ArrivalTime;
+    if (!startTime) return "N/A";
+
+    const durationMs = now - new Date(startTime).getTime();
+    return formatDuration(durationMs);
+  };
+
+  const getStatusColor = (status: string) => {
     switch (status) {
       case "down":
         return "bg-gradient-to-br from-[#ed1c24] to-red-700";
       case "arrived":
         return "bg-gradient-to-br from-yellow-400 to-amber-600 text-white";
       case "running":
-        return " bg-gradient-to-br from-green-500 to-emerald-700 text-white";
+        return "bg-gradient-to-br from-green-500 to-emerald-700 text-white";
       default:
         return "";
     }
   };
 
-  const getIcon = (status: Machine["status"]) => {
+  const getIcon = (status: string) => {
     switch (status) {
-      case "down": // Machine is down
-        return <IoIosWarning className="text-red-500 w-8 h-8" />;
-      case "arrived": // Mechanic arrived
+      case "down":
+        return <IoIosWarning className="text-red-500 w-8 h-8 animate-zoom" />;
+
+      case "arrived":
         return <MdOutlinePendingActions className="text-yellow-500 w-8 h-8" />;
-      case "running": // Machine running
+      case "running":
         return <VscVmActive className="text-green-500 w-8 h-8" />;
-      default: // Fallback
+      default:
         return null;
     }
   };
 
-  const [showAddMachineForm, setShowAddMachineForm] = useState(false);
-
   return (
     <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-200 min-h-screen">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6 bg-white/70 backdrop-blur-md p-4 rounded-xl shadow-md">
-        <div>
-          <h1 className="lg:text-3xl lg:block hidden text-2xl font-extrabold text-gray-800 tracking-tight">
-            Team Leader Dashboard{" "}
-          </h1>
-          <p className="text-gray-600 mt-5">
-            Here you can monitor the performance and status of your team.
-          </p>
-        </div>
-        <div>
-          <img
-            src={Logo}
-            alt="Logo"
-            className="h-24 mr-10 w-auto object-contain"
-          />
-        </div>
+      <div className="flex items-center justify-between mb-6 bg-white/70 backdrop-blur-md px-4 rounded-xl shadow-md">
+        <h1 className="lg:text-3xl lg:block hidden text-2xl font-extrabold text-gray-800 tracking-tight">
+          Machine Status -
+        </h1>
+        <img
+          src={Logo}
+          alt="Logo"
+          className="h-24 mr-10 w-auto object-contain"
+        />
       </div>
-
-      {/*Search Bar*/}
-      <div className="mb-6 flex gap-8">
-        <div className="w-9/10">
-          <input
-            type="text"
-            placeholder="Search Machine"
-            className="w-full p-3 rounded-lg bg-white/80 backdrop-blur-md shadow-md focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-        </div>
-        <div className="w-1/10">
-          <button
-            onClick={() => setShowAddMachineForm((prev) => !prev)}
-            className="px-4 p-3 bg-primary text-white rounded-lg shadow-md hover:bg-primary-dark transition-colors"
-          >
-            {showAddMachineForm ? "Close Form" : "Add Machine"}
-          </button>
-        </div>
-      </div>
-      {showAddMachineForm && (
-        <div className="mt-6 z-0">
-          <AddMachine />
-        </div>
-      )}
-
-
 
       {/* Main Content */}
-      <div className="bg- backdrop-blur-md p-6 rounded-xl shadow-lg grid grid-cols-4 gap-6">
-        {machines.map((machine) => (
-          <div
-            className={`rounded-xl shadow-lg flex items-center p-4 text-white justify-between ${getStatusColor(
-              machine.status
-            )}`}
-          >
-            <div key={machine._id}>
-              <div className="text-lg font-bold">{machine.machineName}</div>
-              <div className="text-sm opacity-90">b</div>
-              <div className="text-xs opacity-80">c</div>
-            </div>
+      <div className="flex flex-col lg:flex-row gap-6">
+        <div className="backdrop-blur-md p-6 rounded-xl shadow-lg grid grid-cols-4 gap-6 w-full">
+          {machines.map((machine) => (
+            <div
+              key={machine._id}
+              className={`rounded-xl shadow-lg flex items-center p-4 text-white justify-between ${getStatusColor(
+                machine.status
+              )}`}
+            >
+              <div>
+                <div className="text-lg font-bold">{machine.machineName}</div>
+                <div className="text-sm opacity-90">
+                  {machine.status.charAt(0).toUpperCase() +
+                    machine.status.slice(1)}
+                </div>
+                <div className="text-xs opacity-80">
+                  Downtime: {calculateDowntime(machine)}
+                </div>
+              </div>
 
-            <div className="w-1/4 flex items-center justify-center bg-ternary/90 rounded-full p-2 shadow-inner">
-              {getIcon(machine.status)}
+              <div className="w-1/4 flex items-center justify-center bg-ternary/90 rounded-full p-2 shadow-inner">
+                {getIcon(machine.status)}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );
