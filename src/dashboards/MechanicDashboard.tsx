@@ -10,6 +10,8 @@ interface Machine {
   breakdownStartTime: string;
   m_ArrivalTime?: string;
   breakdownEndTime?: string;
+  section?: string;
+  line?: string;
 }
 
 function formatDuration(ms: number) {
@@ -134,10 +136,12 @@ const MechanicDashboard: React.FC = () => {
           <thead>
             <tr className="bg-primary text-white">
               <th className="p-4 text-left">Machine Name</th>
-              <th className="p-4 text-left">Number</th>
+              <th className="p-4 text-left">Number</th>{" "}
+              <th className="p-4 text-left">Section</th>
+              <th className="p-4 text-left">Line</th>
               <th className="p-4 text-left">Downtime</th>
               <th className="p-4 text-left">Status</th>
-              <th className="p-4 text-left">Actions</th>
+              {/* <th className="p-4 text-left">Actions</th> */}
             </tr>
           </thead>
           <tbody>
@@ -149,7 +153,9 @@ const MechanicDashboard: React.FC = () => {
                 } hover:bg-gray-100 transition-colors`}
               >
                 <td className="p-4 font-medium">{machine.machineName}</td>
-                <td className="p-4">{machine.machineId}</td>
+                <td className="p-4">{machine.machineId}</td>{" "}
+                <td className="p-4">{machine.section}</td>{" "}
+                <td className="p-4">{machine.line}</td>
                 <td className="p-4">{calculateDowntime(machine)}</td>
                 <td className="p-4">
                   <span
@@ -160,7 +166,7 @@ const MechanicDashboard: React.FC = () => {
                     {machine.status.toUpperCase()}
                   </span>
                 </td>
-                <td className="p-4 flex gap-2">
+                {/* <td className="p-4 flex gap-2">
                   <button
                     onClick={() => updateStatus(machine._id, "arrived")}
                     className="px-4 py-2 flex items-center gap-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 hover:shadow-lg transition-all duration-200"
@@ -173,7 +179,7 @@ const MechanicDashboard: React.FC = () => {
                   >
                     Solved
                   </button>
-                </td>
+                </td> */}
               </tr>
             ))}
           </tbody>
@@ -193,6 +199,10 @@ const MechanicDashboard: React.FC = () => {
                 Number: {machine.machineName}
               </p>
               <p className="text-sm text-gray-600">
+                Section: {machine.section}
+              </p>{" "}
+              <p className="text-sm text-gray-600">Line: {machine.line}</p>
+              <p className="text-sm text-gray-600">
                 Downtime: {calculateDowntime(machine)}
               </p>
               <span
@@ -202,7 +212,7 @@ const MechanicDashboard: React.FC = () => {
               >
                 {machine.status.toUpperCase()}
               </span>
-              <div className="mt-2 flex gap-2">
+              {/* <div className="mt-2 flex gap-2">
                 <button
                   onClick={() => updateStatus(machine._id, "arrived")}
                   className="px-4 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 hover:shadow-lg transition-all duration-200"
@@ -215,7 +225,7 @@ const MechanicDashboard: React.FC = () => {
                 >
                   Solved
                 </button>
-              </div>
+              </div> */}
             </div>
           ))}
         </div>
