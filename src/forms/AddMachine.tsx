@@ -1,3 +1,4 @@
+//forms/AddMachine.tsx
 import React, { useState } from "react";
 
 const statusOptions = ["down", "arrived", "running"];
@@ -10,7 +11,7 @@ const AddMachine: React.FC = () => {
     machineType: "",
     section: "",
     line: "",
-    status: "down",
+    status: "running",
   });
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
@@ -36,46 +37,45 @@ const AddMachine: React.FC = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  if (!validate()) return;
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validate()) return;
 
-  try {
-    const response = await fetch("http://localhost:5000/api/machines/add", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(form),
-    });
+    try {
+      const response = await fetch("http://localhost:5000/api/machines/add", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(form),
+      });
 
-    if (!response.ok) {
-      // Try to parse error message from backend
-      const errorData = await response.json();
-      alert("Error: " + (errorData.message || "Failed to add machine"));
-      return;
+      if (!response.ok) {
+        // Try to parse error message from backend
+        const errorData = await response.json();
+        alert("Error: " + (errorData.message || "Failed to add machine"));
+        return;
+      }
+
+      alert("Machine added successfully!");
+      setForm({
+        machineId: "",
+        machineName: "",
+        machineOwner: "",
+        machineType: "",
+        section: "",
+        line: "",
+        status: "down",
+      });
+      setErrors({});
+    } catch (error) {
+      alert("Network error: Could not reach server");
+      console.error("Add machine error:", error);
     }
-
-    alert("Machine added successfully!");
-    setForm({
-      machineId: "",
-      machineName: "",
-      machineOwner: "",
-      machineType: "",
-      section: "",
-      line: "",
-      status: "down",
-    });
-    setErrors({});
-  } catch (error) {
-    alert("Network error: Could not reach server");
-    console.error("Add machine error:", error);
-  }
-};
-
+  };
 
   return (
-    <div className="w-2/6  mx-auto bg-white p-6 rounded-xl shadow-lg ">
+    <div className=" bg-white p-6 rounded-xl shadow-lg h-full overflow-auto">
       <h2 className="text-2xl font-bold mb-6 text-gray-800">Add New Machine</h2>
 
       <form onSubmit={handleSubmit} className="space-y-5">
@@ -226,7 +226,7 @@ const handleSubmit = async (e: React.FormEvent) => {
         {/* Submit */}
         <button
           type="submit"
-          className="w-full bg-blue-600 text-white font-semibold py-3 rounded hover:bg-blue-700 transition"
+          className="w-full bg-primary text-white font-semibold py-3 rounded hover:bg-primary/80 transition cursor-pointer"
         >
           Add Machine
         </button>

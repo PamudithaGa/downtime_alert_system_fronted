@@ -35,7 +35,6 @@ const Login: React.FC = () => {
         console.log("Login Success:", data);
         if (remember) localStorage.setItem("token", data.token);
         else sessionStorage.setItem("token", data.token);
-        // Redirect or update UI here
       } else {
         MySwal.fire({
           icon: "error",
@@ -71,7 +70,7 @@ const Login: React.FC = () => {
               placeholder="EPF"
               value={epf}
               onChange={(e) => setEpf(e.target.value)}
-              className="bg-transparent flex-1 outline-none text-white placeholder-white/70 hover:border-primary"
+              className="bg-transparent flex-1 outline-none text-black placeholder-black/60 hover:border-primary"
               required
             />
           </div>
@@ -82,7 +81,7 @@ const Login: React.FC = () => {
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="bg-transparent flex-1 outline-none text-white placeholder-white/70"
+              className="bg-transparent flex-1 outline-none text-black placeholder-black/60 hover:border-primary"
               required
             />
             <button
