@@ -35,7 +35,6 @@ const Login: React.FC = () => {
         console.log("Login Success:", data);
         if (remember) localStorage.setItem("token", data.token);
         else sessionStorage.setItem("token", data.token);
-        // Redirect or update UI here
       } else {
         MySwal.fire({
           icon: "error",

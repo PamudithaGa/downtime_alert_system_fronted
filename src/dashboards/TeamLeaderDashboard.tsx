@@ -3,12 +3,15 @@ import Logo from "../assets/logo/mas-holdings-logo-seeklogo.png";
 import { IoIosWarning } from "react-icons/io";
 import { VscVmActive } from "react-icons/vsc";
 import { MdOutlinePendingActions } from "react-icons/md";
+import { MdTabletMac } from "react-icons/md";
+import { Link } from "react-router-dom";
 
 interface MachineLog {
   status: string;
   m_ArrivalTime?: string;
   breakdownStartTime?: string;
   breakdownEndTime?: string;
+  time?: string;
 }
 
 interface Machine {
@@ -34,16 +37,14 @@ const TeamLeaderDashboard: React.FC = () => {
   const [machines, setMachines] = useState<Machine[]>([]);
   const [now, setNow] = useState(Date.now());
 
-  // Update current time every second
-  useEffect(() => {
-    const interval = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  // Fetch machines every second
   useEffect(() => {
     fetchMachines();
     const interval = setInterval(fetchMachines, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(interval);
   }, []);
 
@@ -60,10 +61,8 @@ const TeamLeaderDashboard: React.FC = () => {
 
   const calculateDowntime = (machine: Machine) => {
     if (machine.status === "running") return "As soon as possible";
-
     if (!machine.logs || machine.logs.length === 0) return "N/A";
 
-    // Find latest down log
     const downLog = [...machine.logs]
       .reverse()
       .find((log) => log.status === "down" || log.status === "arrived");
@@ -108,8 +107,11 @@ const TeamLeaderDashboard: React.FC = () => {
     <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-200 min-h-screen">
       {/* Header */}
       <div className="flex items-center justify-between mb-6 bg-white/70 backdrop-blur-md px-4 rounded-xl shadow-md">
-        <h1 className="lg:text-3xl lg:block hidden text-2xl font-extrabold text-gray-800 tracking-tight">
-          Machine Status -
+        <h1 className="lg:text-3xl lg:flex hidden gap-4 text-2xl font-extrabold text-gray-800 tracking-tight">
+          Machine Breakdown Dashboard
+          <Link to="/tabletdashboard">
+            <MdTabletMac style={{ transform: "rotate(10deg)" }} />
+          </Link>
         </h1>
         <img
           src={Logo}
