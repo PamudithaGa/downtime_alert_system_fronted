@@ -166,20 +166,7 @@ const MechanicDashboard: React.FC = () => {
                     {machine.status.toUpperCase()}
                   </span>
                 </td>
-                {/* <td className="p-4 flex gap-2">
-                  <button
-                    onClick={() => updateStatus(machine._id, "arrived")}
-                    className="px-4 py-2 flex items-center gap-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 hover:shadow-lg transition-all duration-200"
-                  >
-                    Arrived
-                  </button>
-                  <button
-                    onClick={() => updateStatus(machine._id, "running")}
-                    className="px-4 py-2 flex items-center gap-2 bg-green-500 text-white rounded-lg shadow-md hover:bg-green-600 hover:shadow-lg transition-all duration-200"
-                  >
-                    Solved
-                  </button>
-                </td> */}
+
               </tr>
             ))}
           </tbody>
