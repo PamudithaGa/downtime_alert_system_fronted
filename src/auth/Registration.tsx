@@ -18,6 +18,7 @@ interface FormData {
   role: string;
   section?: string;
   line?: string;
+  phone: string;
 }
 
 const MySwal = withReactContent(Swal);
@@ -32,12 +33,12 @@ const Register: React.FC = () => {
     department: "technical",
     epf: "",
     role: "",
+    phone: "",
   });
 
   const [availableLines, setAvailableLines] = useState<string[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
-
 
   useEffect(() => {
     if (formData.department === "production") {
@@ -112,6 +113,7 @@ const Register: React.FC = () => {
         department: "technical",
         epf: "",
         role: "",
+        phone: "",
       });
 
       MySwal.fire({
@@ -179,6 +181,21 @@ const Register: React.FC = () => {
               value={formData.email}
               onChange={handleChange}
               required
+              className="bg-transparent flex-1 outline-none text-black placeholder-black/60"
+            />
+          </div>
+
+          {/* Phone Number */}
+          <div className="flex items-center bg-white/30 rounded-lg px-3 py-2 border border-transparent hover:border-primary transition-colors duration-200">
+            <input
+              type="text"
+              name="phone"
+              placeholder="+94XXXXXXXXX"
+              value={formData.phone}
+              onChange={handleChange}
+              required
+              pattern="^\+94\d{9}$"
+              maxLength={12}
               className="bg-transparent flex-1 outline-none text-black placeholder-black/60"
             />
           </div>
