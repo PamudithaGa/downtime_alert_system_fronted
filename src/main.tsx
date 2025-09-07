@@ -8,6 +8,7 @@ import TeamLeaderDashboard from "./dashboards/TeamLeaderDashboard.tsx";
 import Registration from "./auth/Registration.tsx";
 import TabletDashboard from "./dashboards/TabletDashboard.tsx";
 import AdminDashboard from "./dashboards/AdminDashboard.tsx";
+import ProtectedRoute from "./auth/ProtectedRoute.tsx";
 
 const router = createBrowserRouter([
   {
@@ -16,24 +17,33 @@ const router = createBrowserRouter([
   },
   {
     path: "/mechanicdashboard",
-    element: <MechanicDashboard />,
+    element: (
+      <ProtectedRoute allowedRoles={["mechanic"]}>
+        <MechanicDashboard />
+      </ProtectedRoute>
+    ),
   },
   {
-    path: "/teamleaderdashboard",
+    path: "/tvdashboard",
     element: <TeamLeaderDashboard />,
   },
   {
     path: "/registration",
     element: <Registration />,
   },
+
   {
     path: "/tabletdashboard",
-    element: <TabletDashboard />,
+    element: (
+      <ProtectedRoute allowedRoles={["Team Leader"]}>
+        <TabletDashboard />
+      </ProtectedRoute>
+    ),
   },
   {
-    path:"/admin",
-    element:<AdminDashboard/>
-  }
+    path: "/admin",
+    element: <AdminDashboard />,
+  },
 ]);
 
 createRoot(document.getElementById("root")!).render(

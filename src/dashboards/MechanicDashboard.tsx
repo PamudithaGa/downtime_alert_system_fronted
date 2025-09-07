@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Logo from "../assets/logo/mas-holdings-logo-seeklogo.png";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 interface Machine {
   _id: string;
@@ -115,6 +117,22 @@ const MechanicDashboard: React.FC = () => {
     }
   };
 
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      // Call backend logout API
+      await axios.post("http://localhost:5000/api/auth/logout");
+
+      // Clear JWT
+      localStorage.removeItem("token");
+
+      // Redirect to login
+      navigate("/");
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
   return (
     <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-200 min-h-screen">
       {/* Header */}
@@ -126,7 +144,12 @@ const MechanicDashboard: React.FC = () => {
           Downtime Alerts
         </h1>
         <div>
-          <img src={Logo} alt="Logo" className="h-14 w-auto object-contain" />
+          <img
+            src={Logo}
+            alt="Logo"
+            onClick={handleLogout}
+            className="h-14 w-auto object-contain"
+          />
         </div>
       </div>
 
@@ -141,7 +164,6 @@ const MechanicDashboard: React.FC = () => {
               <th className="p-4 text-left">Line</th>
               <th className="p-4 text-left">Downtime</th>
               <th className="p-4 text-left">Status</th>
-              {/* <th className="p-4 text-left">Actions</th> */}
             </tr>
           </thead>
           <tbody>
@@ -166,7 +188,6 @@ const MechanicDashboard: React.FC = () => {
                     {machine.status.toUpperCase()}
                   </span>
                 </td>
-
               </tr>
             ))}
           </tbody>
