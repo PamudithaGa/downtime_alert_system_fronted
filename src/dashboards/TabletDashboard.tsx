@@ -6,9 +6,10 @@ import { VscVmActive } from "react-icons/vsc";
 import { MdOutlinePendingActions, MdTabletMac } from "react-icons/md";
 import { Link } from "react-router-dom";
 import AddMachine from "../forms/AddMachine";
-import { logout } from "../services/logout";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import {
   Chart as ChartJS,
   ArcElement,
@@ -234,6 +235,22 @@ const TabletDashboard: React.FC = () => {
     }
   };
 
+  const navigate = useNavigate();
+  const handleLogout = async () => {
+    try {
+      // Call backend logout API
+      await axios.post("http://localhost:5000/api/auth/logout");
+
+      // Clear JWT
+      localStorage.removeItem("token");
+
+      // Redirect to login
+      navigate("/");
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
+
   const getIcon = (status: string) => {
     switch (status) {
       case "down":
@@ -257,6 +274,7 @@ const TabletDashboard: React.FC = () => {
     return ((downtimeMins * empCount * 0.6) / 60).toFixed(2); // hours lost
   };
 
+  // Generate PDF Report
   const handlePrintReport = async () => {
     const doc = new jsPDF();
 
@@ -438,12 +456,12 @@ const TabletDashboard: React.FC = () => {
           src={Logo}
           alt="Logo"
           className="h-20 w-auto object-contain cursor-pointer"
-          onClick={logout}
+          onClick={handleLogout}
           title="Click to logout"
         />
       </div>
 
-      <div className="flex justify-end gap-4">
+      <div className="flex justify-end gap-4 pb-5">
         <button
           onClick={handlePrintReport}
           className="bg-secondary text-white rounded-lg p-3 font-bold cursor-pointer hover:bg-white hover:text-secondary hover:border-secondary "

@@ -3,6 +3,7 @@ import { IoEyeOffOutline, IoEyeOutline } from "react-icons/io5";
 import Logo from "./assets/logo/Logo_of_MAS_Holdings.png";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
+import { Link } from "react-router-dom";
 
 const MySwal = withReactContent(Swal);
 
@@ -32,9 +33,23 @@ const Login: React.FC = () => {
           timer: 2000,
           showConfirmButton: false,
         });
-        console.log("Login Success:", data);
         if (remember) localStorage.setItem("token", data.token);
         else sessionStorage.setItem("token", data.token);
+
+        localStorage.setItem("user", JSON.stringify(data.user));
+
+        // Redirect by role/department
+        const { department, role } = data.user;
+
+        if (department === "engineering" && role === "mechanic") {
+          window.location.href = "/mechanicdashboard";
+        } else if (department === "subassembly" && role === "Team Leader") {
+          window.location.href = "/tabletdashboard";
+        } else if (department === "quality") {
+          window.location.href = "/quality-dashboard";
+        } else {
+          window.location.href = "/";
+        }
       } else {
         MySwal.fire({
           icon: "error",
@@ -53,7 +68,7 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-r bg-secondary">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-r bg-secondary p-6 lg:p-0">
       <div className="backdrop-blur-lg rounded-2xl shadow-lg p-8 w-[400px] h-auto flex items-center flex-col bg-white/20">
         <div className="w-[200px] mb-6">
           <img src={Logo} alt="MAS Holdings Logo" />
@@ -74,7 +89,6 @@ const Login: React.FC = () => {
               required
             />
           </div>
-
           <div className="flex items-center bg-white/30 rounded-lg px-3 py-2 hover:border-primary border border-transparent transition-colors duration-200">
             <input
               type={showPassword ? "text" : "password"}
@@ -92,8 +106,7 @@ const Login: React.FC = () => {
               {showPassword ? <IoEyeOffOutline /> : <IoEyeOutline />}
             </button>
           </div>
-
-          <div className="flex justify-between text-sm text-white/80">
+          {/* <div className="flex justify-between text-sm text-white/80">
             <label className="flex items-center space-x-2">
               <input
                 type="checkbox"
@@ -105,13 +118,19 @@ const Login: React.FC = () => {
             <a href="#" className="hover:underline">
               Forgot password?
             </a>
-          </div>
-
+          </div> */}
           <button
             type="submit"
             className="w-full bg-primary/80 hover:bg-primary text-white py-2 rounded-lg transition cursor-pointer"
           >
             LOGIN
+          </button>{" "}
+          <button className="w-full bg-white hover:bg-secondary text-black hover:text-white py-2 rounded-lg transition cursor-pointer">
+            <Link
+              to="/tvdashboard"
+            >
+              TV Dashboard
+            </Link>
           </button>
         </form>
       </div>
