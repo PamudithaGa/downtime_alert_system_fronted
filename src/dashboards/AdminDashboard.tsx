@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import Logo from "../assets/logo/Logo_of_MAS_Holdings.png";
-import axios from "axios";
+// import { useNavigate } from "react-router-dom";
+// import Logo from "../assets/logo/Logo_of_MAS_Holdings.png";
+// import axios from "axios";
 const AdminDashboard: React.FC = () => {
   const [users, setUsers] = useState([
     { id: 1, name: "Alice", email: "alice@example.com" },
@@ -26,21 +26,22 @@ const AdminDashboard: React.FC = () => {
     setUsers([...users, { id: nextId, ...newUser }]);
     setNewUser({ name: "", email: "" }); // reset form
   };
-  const navigate = useNavigate();
-  const handleLogout = async () => {
-    try {
-      // Call backend logout API
-      await axios.post("http://localhost:5000/api/auth/logout");
 
-      // Clear JWT
-      localStorage.removeItem("token");
+  // const navigate = useNavigate();
+  // const handleLogout = async () => {
+  //   try {
+  //     // Call backend logout API
+  //     await axios.post("http://localhost:5000/api/auth/logout");
 
-      // Redirect to login
-      navigate("/");
-    } catch (error) {
-      console.error("Logout error:", error);
-    }
-  };
+  //     // Clear JWT
+  //     localStorage.removeItem("token");
+
+  //     // Redirect to login
+  //     navigate("/");
+  //   } catch (error) {
+  //     console.error("Logout error:", error);
+  //   }
+  // };
   
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
