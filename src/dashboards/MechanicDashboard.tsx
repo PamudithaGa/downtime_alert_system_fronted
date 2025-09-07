@@ -77,33 +77,35 @@ const MechanicDashboard: React.FC = () => {
     }
   };
 
-  const updateStatus = async (machineId: string, newStatus: string) => {
-    try {
-      const response = await fetch(
-        `http://localhost:5000/api/machines/${machineId}/status`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ status: newStatus }),
-        }
-      );
+  // const updateStatus = async (machineId: string, newStatus: string) => {
+  //   try {
+  //     const response = await fetch(
+  //       `http://localhost:5000/api/machines/${machineId}/status`,
+  //       {
+  //         method: "POST",
+  //         headers: { "Content-Type": "application/json" },
+  //         body: JSON.stringify({ status: newStatus }),
+  //       }
+  //     );
 
-      if (!response.ok) {
-        throw new Error("Failed to update status");
-      }
+  //     if (!response.ok) {
+  //       throw new Error("Failed to update status");
+  //     }
 
-      const updatedMachine = await response.json();
+  //     const updatedMachine = await response.json();
 
-      // Update the local state so UI changes instantly
-      setMachines((prev) =>
-        prev.map((m) => (m._id === machineId ? { ...m, ...updatedMachine } : m))
-      );
-    } catch (error) {
-      console.error("Error updating status:", error);
-    }
-  };
+  //     // Update the local state so UI changes instantly
+  //     setMachines((prev) =>
+  //       prev.map((m) => (m._id === machineId ? { ...m, ...updatedMachine } : m))
+  //     );
+  //   } catch (error) {
+  //     console.error("Error updating status:", error);
+  //   }
+  // };
 
   //get status color based on machine status
+
+  
   const getStatusColor = (status: Machine["status"]) => {
     switch (status) {
       case "down":

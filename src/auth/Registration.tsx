@@ -341,6 +341,9 @@ const Register: React.FC = () => {
             {loading ? "Registering..." : "Register"}
           </button>
         </form>
+        {message && (
+          <p className="text-center text-sm text-red-500 mt-2">{message}</p>
+        )}
       </div>
     </div>
   );

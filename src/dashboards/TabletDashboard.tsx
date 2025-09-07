@@ -16,9 +16,8 @@ import {
   Tooltip,
   Legend,
   Title,
-  Chart,
 } from "chart.js";
-import { Pie } from "react-chartjs-2";
+// import { Pie } from "react-chartjs-2";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 ChartJS.register(ChartDataLabels);
 
@@ -405,7 +404,7 @@ const TabletDashboard: React.FC = () => {
             datalabels: {
               color: "#fff",
               font: { weight: "bold", size: 12 },
-              formatter: (value: number, context) => {
+              formatter: (value: number) => {
                 const total = Object.values(reasonCounts).reduce(
                   (a, b) => a + b,
                   0
