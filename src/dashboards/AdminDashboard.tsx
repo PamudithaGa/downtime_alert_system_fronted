@@ -31,7 +31,7 @@ const AdminDashboard: React.FC = () => {
   // const handleLogout = async () => {
   //   try {
   //     // Call backend logout API
-  //     await axios.post("http://localhost:5000/api/auth/logout");
+  //     await axios.post("https://downtimealertsystembackend-production.up.railway.app/api/auth/logout");
 
   //     // Clear JWT
   //     localStorage.removeItem("token");

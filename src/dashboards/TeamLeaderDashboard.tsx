@@ -50,7 +50,7 @@ const TeamLeaderDashboard: React.FC = () => {
 
   const fetchMachines = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/machines");
+      const res = await fetch("https://downtimealertsystembackend-production.up.railway.app/api/machines");
       if (!res.ok) throw new Error("Failed to fetch machines");
       const data = await res.json();
       setMachines(data);
