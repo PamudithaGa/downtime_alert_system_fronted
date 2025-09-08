@@ -57,7 +57,7 @@ const MechanicLoginModal: React.FC<LoginFormProps> = ({
 
   const handleLogin = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/auth/login", {
+      const res = await fetch("https://downtimealertsystembackend-production.up.railway.app/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ epf, password }),
@@ -147,7 +147,7 @@ const TabletDashboard: React.FC = () => {
 
   const fetchMachines = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/machines/down");
+      const res = await fetch("https://downtimealertsystembackend-production.up.railway.app/api/machines/down");
       if (!res.ok) throw new Error("Failed to fetch machines");
       const data = await res.json();
       setMachines(data);
@@ -177,7 +177,7 @@ const TabletDashboard: React.FC = () => {
 
     try {
       const res = await fetch(
-        `http://localhost:5000/api/machines/${selectedMachineId}/status`,
+        `https://downtimealertsystembackend-production.up.railway.app/api/machines/${selectedMachineId}/status`,
         {
           method: "PUT",
           headers: {
@@ -238,7 +238,7 @@ const TabletDashboard: React.FC = () => {
   const handleLogout = async () => {
     try {
       // Call backend logout API
-      await axios.post("http://localhost:5000/api/auth/logout");
+      await axios.post("https://downtimealertsystembackend-production.up.railway.app/api/auth/logout");
 
       // Clear JWT
       localStorage.removeItem("token");

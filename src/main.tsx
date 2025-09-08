@@ -31,7 +31,14 @@ const router = createBrowserRouter([
     path: "/registration",
     element: <Registration />,
   },
-
+// {
+//     path: "/registration",
+//     element: (
+//       <ProtectedRoute allowedRoles={["Team Leader"]}>
+//         <Registration />
+//       </ProtectedRoute>
+//     ),
+//   },
   {
     path: "/tabletdashboard",
     element: (

@@ -66,7 +66,7 @@ const MechanicDashboard: React.FC = () => {
   //get machines
   const fetchMachines = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/machines");
+      const res = await fetch("https://downtimealertsystembackend-production.up.railway.app/api/machines");
       if (!res.ok) {
         throw new Error("Failed to fetch machines");
       }
@@ -80,7 +80,7 @@ const MechanicDashboard: React.FC = () => {
   // const updateStatus = async (machineId: string, newStatus: string) => {
   //   try {
   //     const response = await fetch(
-  //       `http://localhost:5000/api/machines/${machineId}/status`,
+  //       `https://downtimealertsystembackend-production.up.railway.app/api/machines/${machineId}/status`,
   //       {
   //         method: "POST",
   //         headers: { "Content-Type": "application/json" },
@@ -124,7 +124,7 @@ const MechanicDashboard: React.FC = () => {
   const handleLogout = async () => {
     try {
       // Call backend logout API
-      await axios.post("http://localhost:5000/api/auth/logout");
+      await axios.post("https://downtimealertsystembackend-production.up.railway.app/api/auth/logout");
 
       // Clear JWT
       localStorage.removeItem("token");
