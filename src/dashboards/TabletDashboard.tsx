@@ -10,14 +10,7 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import {
-  Chart as ChartJS,
-  ArcElement,
-  Tooltip,
-  Legend,
-  Title,
-} from "chart.js";
-// import { Pie } from "react-chartjs-2";
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, Title } from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 ChartJS.register(ChartDataLabels);
 
@@ -26,7 +19,7 @@ ChartJS.register(ArcElement, Tooltip, Legend, Title);
 interface MachineLog {
   status: string;
   m_ArrivalTime?: string;
-  breakdownStartTime?: string;
+  time?: string;
   breakdownEndTime?: string;
   reason?: string;
 }
@@ -57,11 +50,14 @@ const MechanicLoginModal: React.FC<LoginFormProps> = ({
 
   const handleLogin = async () => {
     try {
-      const res = await fetch("https://downtimealertsystembackend-production.up.railway.app/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ epf, password }),
-      });
+      const res = await fetch(
+        "https://downtimealertsystembackend-production.up.railway.app/api/auth/login",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ epf, password }),
+        }
+      );
       const data = await res.json();
 
       if (!res.ok) throw new Error(data.message || "Login failed");
@@ -147,10 +143,27 @@ const TabletDashboard: React.FC = () => {
 
   const fetchMachines = async () => {
     try {
-      const res = await fetch("https://downtimealertsystembackend-production.up.railway.app/api/machines/down");
+      const res = await fetch(
+        "https://downtimealertsystembackend-production.up.railway.app/api/machines/down"
+      );
       if (!res.ok) throw new Error("Failed to fetch machines");
       const data = await res.json();
-      setMachines(data);
+
+      const normalizedData = data.map((machine: Machine) => ({
+        ...machine,
+        logs: machine.logs.map((log) => ({
+          ...log,
+          time: log.time ? new Date(log.time).getTime() : null,
+          m_ArrivalTime: log.m_ArrivalTime
+            ? new Date(log.m_ArrivalTime).getTime()
+            : null,
+          breakdownEndTime: log.breakdownEndTime
+            ? new Date(log.breakdownEndTime).getTime()
+            : null,
+        })),
+      }));
+
+      setMachines(normalizedData);
     } catch (err) {
       console.error("Error fetching machines:", err);
     }
@@ -204,20 +217,36 @@ const TabletDashboard: React.FC = () => {
     }
   };
 
+  // const calculateDowntime = (machine: Machine) => {
+  //   if (machine.status === "running") return "As soon as possible";
+  //   if (!machine.logs || machine.logs.length === 0) return "N/A";
+
+  //   const downLog = [...machine.logs]
+  //     .reverse()
+  //     .find((log) => log.status === "down" || log.status === "arrived");
+
+  //   if (!downLog) return "N/A";
+
+  //   const startTime = downLog.time || downLog.m_ArrivalTime;
+  //   if (!startTime) return "N/A";
+
+  //   const durationMs = now - new Date(startTime).getTime();
+  //   return formatDuration(durationMs);
+  // };
+
   const calculateDowntime = (machine: Machine) => {
     if (machine.status === "running") return "As soon as possible";
     if (!machine.logs || machine.logs.length === 0) return "N/A";
 
     const downLog = [...machine.logs]
       .reverse()
-      .find((log) => log.status === "down" || log.status === "arrived");
+      .find((log) => log.status === "down");
 
-    if (!downLog) return "N/A";
+    if (!downLog || !downLog.time) return "N/A";
 
-    const startTime = downLog.breakdownStartTime || downLog.m_ArrivalTime;
-    if (!startTime) return "N/A";
+    const startTimeMs = new Date(downLog.time).getTime();
+    const durationMs = now - startTimeMs;
 
-    const durationMs = now - new Date(startTime).getTime();
     return formatDuration(durationMs);
   };
 
@@ -238,7 +267,9 @@ const TabletDashboard: React.FC = () => {
   const handleLogout = async () => {
     try {
       // Call backend logout API
-      await axios.post("https://downtimealertsystembackend-production.up.railway.app/api/auth/logout");
+      await axios.post(
+        "https://downtimealertsystembackend-production.up.railway.app/api/auth/logout"
+      );
 
       // Clear JWT
       localStorage.removeItem("token");
@@ -292,8 +323,8 @@ const TabletDashboard: React.FC = () => {
         .find((log) => log.status === "down" || log.status === "arrived");
 
       let downtimeMs = 0;
-      if (downLog?.breakdownStartTime) {
-        downtimeMs = now - new Date(downLog.breakdownStartTime).getTime();
+      if (downLog?.time) {
+        downtimeMs = now - new Date(downLog.time).getTime();
       }
       const efficiencyLoss = calculateEfficiencyLoss(downtimeMs);
 
