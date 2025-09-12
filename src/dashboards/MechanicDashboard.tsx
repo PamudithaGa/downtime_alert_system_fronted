@@ -9,7 +9,7 @@ interface Machine {
   machineName: string;
   machineType: string;
   status: string;
-  breakdownStartTime: string;
+  time: string;
   m_ArrivalTime?: string;
   breakdownEndTime?: string;
   section?: string;
@@ -49,7 +49,7 @@ const MechanicDashboard: React.FC = () => {
 
   // Calculate downtime based on breakdown start and end times
   const calculateDowntime = (machine: Machine) => {
-    const start = new Date(machine.breakdownStartTime).getTime();
+    const start = new Date(machine.time).getTime();
     const end = machine.breakdownEndTime
       ? new Date(machine.breakdownEndTime).getTime()
       : null;

@@ -9,9 +9,11 @@ import { Link } from "react-router-dom";
 interface MachineLog {
   status: string;
   m_ArrivalTime?: string;
-  breakdownStartTime?: string;
-  breakdownEndTime?: string;
   time?: string;
+  breakdownEndTime?: string;
+  // time?: string;
+  issue?: string;
+  timestamp?: string;
 }
 
 interface Machine {
@@ -20,6 +22,7 @@ interface Machine {
   machineName: string;
   machineType: string;
   status: string;
+  timestamp?: string;
   logs: MachineLog[];
 }
 
@@ -35,7 +38,6 @@ const formatDuration = (ms: number) => {
 
 const TeamLeaderDashboard: React.FC = () => {
   const [machines, setMachines] = useState<Machine[]>([]);
-  const [now, setNow] = useState(Date.now());
 
   useEffect(() => {
     fetchMachines();
@@ -43,14 +45,13 @@ const TeamLeaderDashboard: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  useEffect(() => {
-    const interval = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(interval);
-  }, []);
+
 
   const fetchMachines = async () => {
     try {
-      const res = await fetch("https://downtimealertsystembackend-production.up.railway.app/api/machines");
+      const res = await fetch(
+        "https://downtimealertsystembackend-production.up.railway.app/api/machines"
+      );
       if (!res.ok) throw new Error("Failed to fetch machines");
       const data = await res.json();
       setMachines(data);
@@ -59,21 +60,120 @@ const TeamLeaderDashboard: React.FC = () => {
     }
   };
 
-  const calculateDowntime = (machine: Machine) => {
-    if (machine.status === "running") return "As soon as possible";
-    if (!machine.logs || machine.logs.length === 0) return "N/A";
+  // const calculateTotalDowntime = (
+  //   logs: MachineLog[],
+  //   machineStatus: string
+  // ) => {
+  //   if (machineStatus === "running") return "0m";
 
-    const downLog = [...machine.logs]
-      .reverse()
-      .find((log) => log.status === "down" || log.status === "arrived");
+  //   const lastDown = [...logs].reverse().find((log) => log.status === "down");
+  //   if (!lastDown) return "N/A";
 
-    if (!downLog) return "N/A";
+  //   const start = lastDown.time || lastDown.timestamp;
+  //   if (!start) return "N/A";
 
-    const startTime = downLog.breakdownStartTime || downLog.m_ArrivalTime;
-    if (!startTime) return "N/A";
+  //   const durationMs = Date.now() - Date.parse(start);
+  //   return formatDuration(durationMs);
+  // };
 
-    const durationMs = now - new Date(startTime).getTime();
+  // const calculateCurrentDowntime = (
+  //   logs: MachineLog[],
+  //   machineStatus: string
+  // ) => {
+  //   const startOfDay = new Date();
+  //   startOfDay.setHours(0, 0, 0, 0);
+
+  //   const filteredLogs = logs.filter((log) => {
+  //     if (!log.timestamp) return false;
+  //     const ts = Date.parse(log.timestamp);
+  //     return ts >= startOfDay.getTime();
+  //   });
+
+  //   const sortedLogs = [...filteredLogs].sort(
+  //     (a, b) => Date.parse(a.timestamp ?? "") - Date.parse(b.timestamp ?? "")
+  //   );
+
+  //   let totalMs = 0;
+  //   let activeStart: string | null = null;
+
+  //   for (const log of sortedLogs) {
+  //     if (log.status === "down") {
+  //       activeStart = log.time || log.timestamp || null;
+  //     } else if (log.status === "running" && activeStart) {
+  //       const end = log.breakdownEndTime || log.timestamp;
+  //       if (end) totalMs += Date.parse(end) - Date.parse(activeStart);
+  //       activeStart = null;
+  //     }
+  //   }
+
+  //   // If still down after midnight, count from midnight instead of yesterday
+  //   if (activeStart && machineStatus !== "running") {
+  //     const downStart = Date.parse(activeStart);
+  //     const effectiveStart = Math.max(downStart, startOfDay.getTime());
+  //     totalMs += Date.now() - effectiveStart;
+  //   }
+
+  //   return formatDuration(totalMs);
+  // };
+
+  // 👉 Shows only the *ongoing downtime* if the machine is down right now
+
+  // Current ongoing downtime
+  const calculateCurrentDowntime = (
+    logs: MachineLog[],
+    machineStatus: string
+  ) => {
+    if (machineStatus === "running") return "0m";
+
+    const lastDown = [...logs].reverse().find((log) => log.status === "down");
+    if (!lastDown) return "N/A";
+
+    const start = lastDown.time || lastDown.timestamp;
+    if (!start) return "N/A";
+
+    const durationMs = Date.now() - Date.parse(start);
     return formatDuration(durationMs);
+  };
+
+  // Total downtime today (all intervals + ongoing if still down)
+  const calculateTotalDowntime = (
+    logs: MachineLog[],
+    machineStatus: string
+  ) => {
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const filteredLogs = logs.filter((log) => {
+      if (!log.timestamp) return false;
+      const ts = Date.parse(log.timestamp);
+      return ts >= startOfDay.getTime();
+    });
+
+    const sortedLogs = [...filteredLogs].sort(
+      (a, b) => Date.parse(a.timestamp ?? "") - Date.parse(b.timestamp ?? "")
+    );
+
+    let totalMs = 0;
+    let activeStart: string | null = null;
+
+    for (const log of sortedLogs) {
+      if (log.status === "down") {
+        activeStart = log.time || log.timestamp || null;
+      } else if (log.status === "running" && activeStart) {
+        const end = log.breakdownEndTime || log.timestamp;
+        if (end) totalMs += Date.parse(end) - Date.parse(activeStart);
+        activeStart = null;
+      }
+    }
+
+    // If machine is still down → include ongoing downtime
+    if (activeStart && machineStatus !== "running") {
+      const downStart = Date.parse(activeStart);
+      const effectiveStart = Math.max(downStart, startOfDay.getTime());
+      totalMs += Date.now() - effectiveStart;
+    }
+
+    return formatDuration(totalMs);
   };
 
   const getStatusColor = (status: string) => {
@@ -136,8 +236,14 @@ const TeamLeaderDashboard: React.FC = () => {
                   {machine.status.charAt(0).toUpperCase() +
                     machine.status.slice(1)}
                 </div>
+
                 <div className="text-xs opacity-80">
-                  Downtime: {calculateDowntime(machine)}
+                  Current:{" "}
+                  {calculateCurrentDowntime(machine.logs, machine.status)}
+                </div>
+                <div className="text-xs opacity-80">
+                  Total Today:{" "}
+                  {calculateTotalDowntime(machine.logs, machine.status)}
                 </div>
               </div>
 
