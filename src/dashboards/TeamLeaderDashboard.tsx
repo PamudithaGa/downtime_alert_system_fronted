@@ -50,7 +50,7 @@ const TeamLeaderDashboard: React.FC = () => {
   const fetchMachines = async () => {
     try {
       const res = await fetch(
-        "https://downtimealertsystembackend-production.up.railway.app/api/machines"
+        "http://localhost:5000/api/machines"
       );
       if (!res.ok) throw new Error("Failed to fetch machines");
       const data = await res.json();
@@ -59,64 +59,6 @@ const TeamLeaderDashboard: React.FC = () => {
       console.error("Error fetching machines:", err);
     }
   };
-
-  // const calculateTotalDowntime = (
-  //   logs: MachineLog[],
-  //   machineStatus: string
-  // ) => {
-  //   if (machineStatus === "running") return "0m";
-
-  //   const lastDown = [...logs].reverse().find((log) => log.status === "down");
-  //   if (!lastDown) return "N/A";
-
-  //   const start = lastDown.time || lastDown.timestamp;
-  //   if (!start) return "N/A";
-
-  //   const durationMs = Date.now() - Date.parse(start);
-  //   return formatDuration(durationMs);
-  // };
-
-  // const calculateCurrentDowntime = (
-  //   logs: MachineLog[],
-  //   machineStatus: string
-  // ) => {
-  //   const startOfDay = new Date();
-  //   startOfDay.setHours(0, 0, 0, 0);
-
-  //   const filteredLogs = logs.filter((log) => {
-  //     if (!log.timestamp) return false;
-  //     const ts = Date.parse(log.timestamp);
-  //     return ts >= startOfDay.getTime();
-  //   });
-
-  //   const sortedLogs = [...filteredLogs].sort(
-  //     (a, b) => Date.parse(a.timestamp ?? "") - Date.parse(b.timestamp ?? "")
-  //   );
-
-  //   let totalMs = 0;
-  //   let activeStart: string | null = null;
-
-  //   for (const log of sortedLogs) {
-  //     if (log.status === "down") {
-  //       activeStart = log.time || log.timestamp || null;
-  //     } else if (log.status === "running" && activeStart) {
-  //       const end = log.breakdownEndTime || log.timestamp;
-  //       if (end) totalMs += Date.parse(end) - Date.parse(activeStart);
-  //       activeStart = null;
-  //     }
-  //   }
-
-  //   // If still down after midnight, count from midnight instead of yesterday
-  //   if (activeStart && machineStatus !== "running") {
-  //     const downStart = Date.parse(activeStart);
-  //     const effectiveStart = Math.max(downStart, startOfDay.getTime());
-  //     totalMs += Date.now() - effectiveStart;
-  //   }
-
-  //   return formatDuration(totalMs);
-  // };
-
-  // 👉 Shows only the *ongoing downtime* if the machine is down right now
 
   // Current ongoing downtime
   const calculateCurrentDowntime = (

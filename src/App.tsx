@@ -17,7 +17,7 @@ const Login: React.FC = () => {
     e.preventDefault();
 
     try {
-      const res = await fetch("https://downtimealertsystembackend-production.up.railway.app/api/auth/login", {
+      const res = await fetch("http://localhost:5000/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ epf, password }),
@@ -47,6 +47,8 @@ const Login: React.FC = () => {
           window.location.href = "/tabletdashboard";
         } else if (department === "quality") {
           window.location.href = "/quality-dashboard";
+        } else if (department === "Admin") {
+          window.location.href = "/Admin";
         } else {
           window.location.href = "/";
         }
@@ -126,11 +128,7 @@ const Login: React.FC = () => {
             LOGIN
           </button>{" "}
           <button className="w-full bg-white hover:bg-secondary text-black hover:text-white py-2 rounded-lg transition cursor-pointer">
-            <Link
-              to="/tvdashboard"
-            >
-              TV Dashboard
-            </Link>
+            <Link to="/tvdashboard">TV Dashboard</Link>
           </button>
         </form>
       </div>

@@ -51,7 +51,7 @@ const MechanicLoginModal: React.FC<LoginFormProps> = ({
   const handleLogin = async () => {
     try {
       const res = await fetch(
-        "https://downtimealertsystembackend-production.up.railway.app/api/auth/login",
+        "http://localhost:5000/api/auth/login",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -144,7 +144,7 @@ const TabletDashboard: React.FC = () => {
   const fetchMachines = async () => {
     try {
       const res = await fetch(
-        "https://downtimealertsystembackend-production.up.railway.app/api/machines/down"
+        "http://localhost:5000/api/machines/down"
       );
       if (!res.ok) throw new Error("Failed to fetch machines");
       const data = await res.json();
@@ -190,7 +190,7 @@ const TabletDashboard: React.FC = () => {
 
     try {
       const res = await fetch(
-        `https://downtimealertsystembackend-production.up.railway.app/api/machines/${selectedMachineId}/status`,
+        `http://localhost:5000/api/machines/${selectedMachineId}/status`,
         {
           method: "PUT",
           headers: {
@@ -217,22 +217,6 @@ const TabletDashboard: React.FC = () => {
     }
   };
 
-  // const calculateDowntime = (machine: Machine) => {
-  //   if (machine.status === "running") return "As soon as possible";
-  //   if (!machine.logs || machine.logs.length === 0) return "N/A";
-
-  //   const downLog = [...machine.logs]
-  //     .reverse()
-  //     .find((log) => log.status === "down" || log.status === "arrived");
-
-  //   if (!downLog) return "N/A";
-
-  //   const startTime = downLog.time || downLog.m_ArrivalTime;
-  //   if (!startTime) return "N/A";
-
-  //   const durationMs = now - new Date(startTime).getTime();
-  //   return formatDuration(durationMs);
-  // };
 
   const calculateDowntime = (machine: Machine) => {
     if (machine.status === "running") return "As soon as possible";
@@ -268,7 +252,7 @@ const TabletDashboard: React.FC = () => {
     try {
       // Call backend logout API
       await axios.post(
-        "https://downtimealertsystembackend-production.up.railway.app/api/auth/logout"
+        "http://localhost:5000/api/auth/logout"
       );
 
       // Clear JWT

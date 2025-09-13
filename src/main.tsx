@@ -10,6 +10,7 @@ import TabletDashboard from "./dashboards/TabletDashboard.tsx";
 import AdminDashboard from "./dashboards/AdminDashboard.tsx";
 import ProtectedRoute from "./auth/ProtectedRoute.tsx";
 
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -31,14 +32,7 @@ const router = createBrowserRouter([
     path: "/registration",
     element: <Registration />,
   },
-// {
-//     path: "/registration",
-//     element: (
-//       <ProtectedRoute allowedRoles={["Team Leader"]}>
-//         <Registration />
-//       </ProtectedRoute>
-//     ),
-//   },
+
   {
     path: "/tabletdashboard",
     element: (
@@ -49,7 +43,11 @@ const router = createBrowserRouter([
   },
   {
     path: "/admin",
-    element: <AdminDashboard />,
+    element: (
+      <ProtectedRoute allowedRoles={["Admin"]}>
+        <AdminDashboard />,
+      </ProtectedRoute>
+    ),
   },
 ]);
 

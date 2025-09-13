@@ -14,6 +14,17 @@ interface Machine {
   breakdownEndTime?: string;
   section?: string;
   line?: string;
+  logs: MachineLog[];
+}
+
+interface MachineLog {
+  status: string;
+  m_ArrivalTime?: string;
+  time?: string;
+  breakdownEndTime?: string;
+  // time?: string;
+  issue?: string;
+  timestamp?: string;
 }
 
 function formatDuration(ms: number) {
@@ -48,25 +59,28 @@ const MechanicDashboard: React.FC = () => {
   }, []);
 
   // Calculate downtime based on breakdown start and end times
-  const calculateDowntime = (machine: Machine) => {
-    const start = new Date(machine.time).getTime();
-    const end = machine.breakdownEndTime
-      ? new Date(machine.breakdownEndTime).getTime()
-      : null;
+  const calculateCurrentDowntime = (
+    logs: MachineLog[],
+    machineStatus: string
+  ) => {
+    if (machineStatus === "running") return "0m";
 
-    if (end) {
-      // downtime is fixed duration between breakdown start and end
-      return formatDuration(end - start);
-    } else {
-      // downtime is time since breakdown start until now
-      return formatDuration(now - start);
-    }
+    const lastDown = [...logs].reverse().find((log) => log.status === "down");
+    if (!lastDown) return "N/A";
+
+    const start = lastDown.time || lastDown.timestamp;
+    if (!start) return "N/A";
+
+    const durationMs = Date.now() - Date.parse(start);
+    return formatDuration(durationMs);
   };
 
   //get machines
   const fetchMachines = async () => {
     try {
-      const res = await fetch("https://downtimealertsystembackend-production.up.railway.app/api/machines");
+      const res = await fetch(
+        "http://localhost:5000/api/machines"
+      );
       if (!res.ok) {
         throw new Error("Failed to fetch machines");
       }
@@ -80,7 +94,7 @@ const MechanicDashboard: React.FC = () => {
   // const updateStatus = async (machineId: string, newStatus: string) => {
   //   try {
   //     const response = await fetch(
-  //       `https://downtimealertsystembackend-production.up.railway.app/api/machines/${machineId}/status`,
+  //       `http://localhost:5000/api/machines/${machineId}/status`,
   //       {
   //         method: "POST",
   //         headers: { "Content-Type": "application/json" },
@@ -105,7 +119,6 @@ const MechanicDashboard: React.FC = () => {
 
   //get status color based on machine status
 
-  
   const getStatusColor = (status: Machine["status"]) => {
     switch (status) {
       case "down":
@@ -124,7 +137,9 @@ const MechanicDashboard: React.FC = () => {
   const handleLogout = async () => {
     try {
       // Call backend logout API
-      await axios.post("https://downtimealertsystembackend-production.up.railway.app/api/auth/logout");
+      await axios.post(
+        "http://localhost:5000/api/auth/logout"
+      );
 
       // Clear JWT
       localStorage.removeItem("token");
@@ -135,6 +150,7 @@ const MechanicDashboard: React.FC = () => {
       console.error("Logout error:", error);
     }
   };
+  
   return (
     <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-200 min-h-screen">
       {/* Header */}
@@ -180,7 +196,9 @@ const MechanicDashboard: React.FC = () => {
                 <td className="p-4">{machine.machineId}</td>{" "}
                 <td className="p-4">{machine.section}</td>{" "}
                 <td className="p-4">{machine.line}</td>
-                <td className="p-4">{calculateDowntime(machine)}</td>
+                <td className="p-4">
+                  {calculateCurrentDowntime(machine.logs, machine.status)}
+                </td>
                 <td className="p-4">
                   <span
                     className={`px-3 py-1 rounded-full text-xs font-semibold shadow-sm ${getStatusColor(
@@ -213,7 +231,8 @@ const MechanicDashboard: React.FC = () => {
               </p>{" "}
               <p className="text-sm text-gray-600">Line: {machine.line}</p>
               <p className="text-sm text-gray-600">
-                Downtime: {calculateDowntime(machine)}
+                Downtime:{" "}
+                {calculateCurrentDowntime(machine.logs, machine.status)}
               </p>
               <span
                 className={`mt-2 inline-block px-3 py-1 rounded-full text-xs font-semibold shadow-sm ${getStatusColor(
@@ -222,20 +241,6 @@ const MechanicDashboard: React.FC = () => {
               >
                 {machine.status.toUpperCase()}
               </span>
-              {/* <div className="mt-2 flex gap-2">
-                <button
-                  onClick={() => updateStatus(machine._id, "arrived")}
-                  className="px-4 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 hover:shadow-lg transition-all duration-200"
-                >
-                  Arrived
-                </button>
-                <button
-                  onClick={() => updateStatus(machine._id, "running")}
-                  className="px-4 py-2 bg-green-500 text-white rounded-lg shadow-md hover:bg-green-600 hover:shadow-lg transition-all duration-200"
-                >
-                  Solved
-                </button>
-              </div> */}
             </div>
           ))}
         </div>

@@ -139,7 +139,7 @@ const Register: React.FC = () => {
 
   //   try {
   //     const res = await axios.post(
-  //       "https://downtimealertsystembackend-production.up.railway.app/api/auth/register",
+  //       "http://localhost:5000/api/auth/register",
   //       trimmedData
   //     );
   //     setMessage(res.data.message);
@@ -205,7 +205,7 @@ const Register: React.FC = () => {
 
     try {
       const res = await axios.post(
-        "https://downtimealertsystembackend-production.up.railway.app/api/auth/register",
+        "http://localhost:5000/api/auth/register",
         trimmed
       );
       setMessage(res.data.message);

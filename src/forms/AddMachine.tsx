@@ -42,7 +42,7 @@ const AddMachine: React.FC = () => {
     if (!validate()) return;
 
     try {
-      const response = await fetch("https://downtimealertsystembackend-production.up.railway.app/api/machines/add", {
+      const response = await fetch("http://localhost:5000/api/machines/add", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
